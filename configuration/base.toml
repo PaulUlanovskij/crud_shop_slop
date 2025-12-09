@@ -1,0 +1,8 @@
+[application]
+port = 8000
+
+[db]
+user = "postgres"
+password = "1488"
+port = 5432
+name = "slopshop"

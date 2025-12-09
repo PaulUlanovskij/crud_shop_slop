@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlopShop Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>SlopShop Admin Dashboard</h1>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="products">Products</div>
+            <div class="tab" data-tab="categories">Categories</div>
+            <div class="tab" data-tab="customers">Customers</div>
+            <div class="tab" data-tab="suppliers">Suppliers</div>
+            <div class="tab" data-tab="orders">Orders</div>
+            <div class="tab" data-tab="shipments">Shipments</div>
+        </div>
+        
+        <!-- Products Tab -->
+        <div class="tab-content active" id="products-tab">
+            <h2>Product Management</h2>
+            <div class="search-bar">
+                <input type="text" id="product-search" placeholder="Search products...">
+                <button class="btn btn-primary" id="product-search-btn">Search</button>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="product-name">Product Name *</label>
+                    <input type="text" id="product-name" placeholder="Enter product name">
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Price *</label>
+                    <input type="number" id="product-price" step="0.01" placeholder="0.00" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-stock">Stock Quantity *</label>
+                    <input type="number" id="product-stock" placeholder="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-category">Category *</label>
+                    <select id="product-category">
+                        <option value="">Select a category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product-supplier">Supplier *</label>
+                    <select id="product-supplier">
+                        <option value="">Select a supplier</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="product-description">Description</label>
+                <textarea id="product-description" rows="3" placeholder="Enter product description"></textarea>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="product-create-btn">Create Product</button>
+                <button class="btn btn-warning" id="product-update-btn" style="display: none;">Update Product</button>
+                <button class="btn btn-danger" id="product-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="products-table-container">
+                <table id="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Category</th>
+                            <th>Supplier</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- Products will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Categories Tab -->
+        <div class="tab-content" id="categories-tab">
+            <h2>Category Management</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="category-name">Category Name *</label>
+                    <input type="text" id="category-name" placeholder="Enter category name">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="category-description">Description</label>
+                <textarea id="category-description" rows="3" placeholder="Enter category description"></textarea>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="category-create-btn">Create Category</button>
+                <button class="btn btn-warning" id="category-update-btn" style="display: none;">Update Category</button>
+                <button class="btn btn-danger" id="category-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="categories-table-container">
+                <table id="categories-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categories-table-body">
+                        <!-- Categories will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Customers Tab -->
+        <div class="tab-content" id="customers-tab">
+            <h2>Customer Management</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="customer-first-name">First Name *</label>
+                    <input type="text" id="customer-first-name" placeholder="Enter first name">
+                </div>
+                <div class="form-group">
+                    <label for="customer-last-name">Last Name *</label>
+                    <input type="text" id="customer-last-name" placeholder="Enter last name">
+                </div>
+                <div class="form-group">
+                    <label for="customer-email">Email *</label>
+                    <input type="email" id="customer-email" placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="customer-phone">Phone</label>
+                    <input type="text" id="customer-phone" placeholder="Enter phone number">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="customer-address">Address</label>
+                <textarea id="customer-address" rows="3" placeholder="Enter customer address"></textarea>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="customer-create-btn">Create Customer</button>
+                <button class="btn btn-warning" id="customer-update-btn" style="display: none;">Update Customer</button>
+                <button class="btn btn-danger" id="customer-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="customers-table-container">
+                <table id="customers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Registration Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customers-table-body">
+                        <!-- Customers will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Suppliers Tab -->
+        <div class="tab-content" id="suppliers-tab">
+            <h2>Supplier Management</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="supplier-company-name">Company Name *</label>
+                    <input type="text" id="supplier-company-name" placeholder="Enter company name">
+                </div>
+                <div class="form-group">
+                    <label for="supplier-contact-name">Contact Name</label>
+                    <input type="text" id="supplier-contact-name" placeholder="Enter contact name">
+                </div>
+                <div class="form-group">
+                    <label for="supplier-email">Email</label>
+                    <input type="email" id="supplier-email" placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="supplier-phone">Phone</label>
+                    <input type="text" id="supplier-phone" placeholder="Enter phone number">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="supplier-address">Address</label>
+                <textarea id="supplier-address" rows="3" placeholder="Enter supplier address"></textarea>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="supplier-create-btn">Create Supplier</button>
+                <button class="btn btn-warning" id="supplier-update-btn" style="display: none;">Update Supplier</button>
+                <button class="btn btn-danger" id="supplier-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="suppliers-table-container">
+                <table id="suppliers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Company</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="suppliers-table-body">
+                        <!-- Suppliers will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div class="tab-content" id="orders-tab">
+            <h2>Order Management</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="order-customer">Customer *</label>
+                    <select id="order-customer">
+                        <option value="">Select a customer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-status">Status *</label>
+                    <select id="order-status">
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order-total-amount">Total Amount *</label>
+                    <input type="number" id="order-total-amount" step="0.01" placeholder="0.00" min="0">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="order-shipping-address">Shipping Address *</label>
+                <textarea id="order-shipping-address" rows="3" placeholder="Enter shipping address"></textarea>
+            </div>
+            
+            <div class="order-items">
+                <h3>Order Items</h3>
+                <div id="order-items-container">
+                    <div class="item-row">
+                        <div class="form-group">
+                            <label>Product</label>
+                            <select class="order-item-product">
+                                <option value="">Select a product</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" class="order-item-quantity" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Unit Price</label>
+                            <input type="number" class="order-item-price" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-success btn-sm" onclick="addOrderItem()">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="order-create-btn">Create Order</button>
+                <button class="btn btn-warning" id="order-update-btn" style="display: none;">Update Order</button>
+                <button class="btn btn-danger" id="order-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="orders-table-container">
+                <table id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <!-- Orders will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Shipments Tab -->
+        <div class="tab-content" id="shipments-tab">
+            <h2>Shipment Management</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="shipment-supplier">Supplier *</label>
+                    <select id="shipment-supplier">
+                        <option value="">Select a supplier</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="shipment-status">Status *</label>
+                    <select id="shipment-status">
+                        <option value="in_transit">In Transit</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="shipment-date">Shipment Date *</label>
+                    <input type="date" id="shipment-date">
+                </div>
+                <div class="form-group">
+                    <label for="shipment-expected-date">Expected Delivery Date *</label>
+                    <input type="date" id="shipment-expected-date">
+                </div>
+                <div class="form-group">
+                    <label for="shipment-total-cost">Total Cost *</label>
+                    <input type="number" id="shipment-total-cost" step="0.01" placeholder="0.00" min="0">
+                </div>
+            </div>
+            
+            <div class="shipment-items">
+                <h3>Shipment Items</h3>
+                <div id="shipment-items-container">
+                    <div class="item-row">
+                        <div class="form-group">
+                            <label>Product</label>
+                            <select class="shipment-item-product">
+                                <option value="">Select a product</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantity</label>
+                            <input type="number" class="shipment-item-quantity" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Unit Cost</label>
+                            <input type="number" class="shipment-item-cost" step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        <div class="item-actions">
+                            <button type="button" class="btn btn-success btn-sm" onclick="addShipmentItem()">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-primary" id="shipment-create-btn">Create Shipment</button>
+                <button class="btn btn-warning" id="shipment-update-btn" style="display: none;">Update Shipment</button>
+                <button class="btn btn-danger" id="shipment-cancel-btn" style="display: none;">Cancel</button>
+            </div>
+            
+            <div id="shipments-table-container">
+                <table id="shipments-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Supplier</th>
+                            <th>Shipment Date</th>
+                            <th>Expected Date</th>
+                            <th>Status</th>
+                            <th>Total Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipments-table-body">
+                        <!-- Shipments will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+   <script src="index.js"></script> 
+</body>
+</html>
