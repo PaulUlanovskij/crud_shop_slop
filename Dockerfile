@@ -14,5 +14,5 @@ COPY configuration configuration
 COPY index.html index.html
 COPY style.css style.css
 COPY index.js index.js
-ENV APP_ENVIROMENT production
+ENV SHOP_ENVIROMENT production
 ENTRYPOINT ["./slopshop"]
