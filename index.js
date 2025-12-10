@@ -66,6 +66,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Load initial data for the active tab (products)
   loadTabData('products');
+  
+  // Set up event delegation for order items
+  const orderItemsContainer = document.getElementById('order-items-container');
+  orderItemsContainer.addEventListener('change', function(e) {
+    if (e.target.classList.contains('order-item-product')) {
+      const selectedOption = e.target.options[e.target.selectedIndex];
+      const price = selectedOption.getAttribute('data-price');
+      const priceInput = e.target.closest('.item-row').querySelector('.order-item-price');
+
+      if (price && priceInput) {
+        priceInput.value = price;
+        calculateOrderTotal();
+      }
+    }
+  });
+
+  orderItemsContainer.addEventListener('input', function(e) {
+    if (e.target.classList.contains('order-item-quantity') || 
+        e.target.classList.contains('order-item-price')) {
+      calculateOrderTotal();
+    }
+  });
+
+  // Set up event delegation for shipment items
+  const shipmentItemsContainer = document.getElementById('shipment-items-container');
+  shipmentItemsContainer.addEventListener('input', function(e) {
+    if (e.target.classList.contains('shipment-item-quantity') || 
+        e.target.classList.contains('shipment-item-cost')) {
+      calculateShipmentTotal();
+    }
+  });
+
 });
 
 // Load data based on the active tab
@@ -1007,9 +1039,15 @@ async function loadProductsForOrderItems() {
     const response = await fetch(`${API_BASE_URL}/products`);
     const products = await response.json();
 
-    const dropdowns = document.querySelectorAll('.order-item-product');
+    const dropdowns = document.querySelectorAll('#order-items-container .order-item-product');
+    
     dropdowns.forEach(dropdown => {
-      dropdown.innerHTML = '<option value="">Select a product</option>';
+      // Clear existing options except the first one
+      while (dropdown.options.length > 1) {
+        dropdown.remove(1);
+      }
+      
+      // Add product options
       products.forEach(product => {
         const option = document.createElement('option');
         option.value = product.product_id;
@@ -1019,25 +1057,6 @@ async function loadProductsForOrderItems() {
       });
     });
 
-    // Add event listeners to update price when product is selected
-    document.querySelectorAll('.order-item-product').forEach(select => {
-      select.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const price = selectedOption.getAttribute('data-price');
-        const quantityInput = this.closest('.item-row').querySelector('.order-item-quantity');
-        const priceInput = this.closest('.item-row').querySelector('.order-item-price');
-
-        if (price) {
-          priceInput.value = price;
-          calculateOrderTotal();
-        }
-      });
-    });
-
-    // Add event listeners to recalculate total when quantity changes
-    document.querySelectorAll('.order-item-quantity').forEach(input => {
-      input.addEventListener('input', calculateOrderTotal);
-    });
   } catch (error) {
     console.error('Error loading products for order items:', error);
   }
@@ -1075,7 +1094,7 @@ function addOrderItem() {
 function removeOrderItem(button) {
   const itemRow = button.closest('.item-row');
   // Don't remove the first item row
-  if (document.querySelectorAll('.item-row').length > 1) {
+  if (document.querySelectorAll('#order-items-container .item-row').length > 1) {
     itemRow.remove();
     calculateOrderTotal();
   }
@@ -1083,19 +1102,32 @@ function removeOrderItem(button) {
 
 function calculateOrderTotal() {
   let total = 0;
-  document.querySelectorAll('.item-row').forEach(row => {
-    const quantity = parseFloat(row.querySelector('.order-item-quantity').value) || 0;
-    const price = parseFloat(row.querySelector('.order-item-price').value) || 0;
-    total += quantity * price;
+  const rows = document.querySelectorAll('#order-items-container .item-row');
+  
+  rows.forEach(row => {
+    const quantityInput = row.querySelector('.order-item-quantity');
+    const priceInput = row.querySelector('.order-item-price');
+    
+    // Add null checks to prevent errors
+    if (quantityInput && priceInput) {
+      const quantity = parseFloat(quantityInput.value) || 0;
+      const price = parseFloat(priceInput.value) || 0;
+      total += quantity * price;
+    }
   });
-  document.getElementById('order-total-amount').value = total.toFixed(2);
+  
+  const totalInput = document.getElementById('order-total-amount');
+  if (totalInput) {
+    totalInput.value = total.toFixed(2);
+  }
 }
 
+
 async function createOrder() {
-  const customerId = document.getElementById('order-customer').value;
-  const status = document.getElementById('order-status').value;
-  const totalAmount = document.getElementById('order-total-amount').value;
-  const shippingAddress = document.getElementById('order-shipping-address').value;
+  const customerId = document.getElementById('order-customer')?.value;
+  const status = document.getElementById('order-status')?.value;
+  const totalAmount = document.getElementById('order-total-amount')?.value;
+  const shippingAddress = document.getElementById('order-shipping-address')?.value;
 
   if (!customerId || !totalAmount || !shippingAddress) {
     showNotification('Please fill all required fields', 'error');
@@ -1104,10 +1136,20 @@ async function createOrder() {
 
   // Collect order items
   const orderItems = [];
-  document.querySelectorAll('.item-row').forEach(row => {
-    const productId = row.querySelector('.order-item-product').value;
-    const quantity = row.querySelector('.order-item-quantity').value;
-    const unitPrice = row.querySelector('.order-item-price').value;
+  const rows = document.querySelectorAll('#order-items-container .item-row');
+  
+  for (const row of rows) {
+    const productSelect = row.querySelector('.order-item-product');
+    const quantityInput = row.querySelector('.order-item-quantity');
+    const priceInput = row.querySelector('.order-item-price');
+
+    if (!productSelect || !quantityInput || !priceInput) {
+      continue;
+    }
+
+    const productId = productSelect.value;
+    const quantity = quantityInput.value;
+    const unitPrice = priceInput.value;
 
     if (productId && quantity && unitPrice) {
       orderItems.push({
@@ -1116,7 +1158,7 @@ async function createOrder() {
         unit_price: parseFloat(unitPrice)
       });
     }
-  });
+  }
 
   if (orderItems.length === 0) {
     showNotification('Please add at least one order item', 'error');
@@ -1234,9 +1276,9 @@ async function updateOrder() {
     return;
   }
 
-  // Collect order items
+	// Collect order items
   const orderItems = [];
-  document.querySelectorAll('.item-row').forEach(row => {
+  document.querySelectorAll('#order-items-container .item-row').forEach(row => {
     const productId = row.querySelector('.order-item-product').value;
     const quantity = row.querySelector('.order-item-quantity').value;
     const unitPrice = row.querySelector('.order-item-price').value;
@@ -1402,9 +1444,15 @@ async function loadProductsForShipmentItems() {
     const response = await fetch(`${API_BASE_URL}/products`);
     const products = await response.json();
 
-    const dropdowns = document.querySelectorAll('.shipment-item-product');
+    const dropdowns = document.querySelectorAll('#shipment-items-container .shipment-item-product');
+    
     dropdowns.forEach(dropdown => {
-      dropdown.innerHTML = '<option value="">Select a product</option>';
+      // Clear existing options except the first one
+      while (dropdown.options.length > 1) {
+        dropdown.remove(1);
+      }
+      
+      // Add product options
       products.forEach(product => {
         const option = document.createElement('option');
         option.value = product.product_id;
@@ -1412,6 +1460,16 @@ async function loadProductsForShipmentItems() {
         dropdown.appendChild(option);
       });
     });
+
+    // Use event delegation for shipment items too
+    const shipmentContainer = document.getElementById('shipment-items-container');
+    shipmentContainer.addEventListener('input', function(e) {
+      if (e.target.classList.contains('shipment-item-quantity') || 
+          e.target.classList.contains('shipment-item-cost')) {
+        calculateShipmentTotal();
+      }
+    });
+
   } catch (error) {
     console.error('Error loading products for shipment items:', error);
   }
@@ -1449,7 +1507,7 @@ function addShipmentItem() {
 function removeShipmentItem(button) {
   const itemRow = button.closest('.item-row');
   // Don't remove the first item row
-  if (document.querySelectorAll('.item-row').length > 1) {
+  if (document.querySelectorAll('#shipment-items-container .item-row').length > 1) {
     itemRow.remove();
     calculateShipmentTotal();
   }
@@ -1457,7 +1515,7 @@ function removeShipmentItem(button) {
 
 function calculateShipmentTotal() {
   let total = 0;
-  document.querySelectorAll('.item-row').forEach(row => {
+  document.querySelectorAll('#shipment-items-container .item-row').forEach(row => {
     const quantity = parseFloat(row.querySelector('.shipment-item-quantity').value) || 0;
     const cost = parseFloat(row.querySelector('.shipment-item-cost').value) || 0;
     total += quantity * cost;
@@ -1466,11 +1524,11 @@ function calculateShipmentTotal() {
 }
 
 async function createShipment() {
-  const supplierId = document.getElementById('shipment-supplier').value;
-  const status = document.getElementById('shipment-status').value;
-  const shipmentDate = document.getElementById('shipment-date').value;
-  const expectedDate = document.getElementById('shipment-expected-date').value;
-  const totalCost = document.getElementById('shipment-total-cost').value;
+  const supplierId = document.getElementById('shipment-supplier')?.value;
+  const status = document.getElementById('shipment-status')?.value;
+  const shipmentDate = document.getElementById('shipment-date')?.value;
+  const expectedDate = document.getElementById('shipment-expected-date')?.value;
+  const totalCost = document.getElementById('shipment-total-cost')?.value;
 
   if (!supplierId || !shipmentDate || !expectedDate || !totalCost) {
     showNotification('Please fill all required fields', 'error');
@@ -1484,10 +1542,20 @@ async function createShipment() {
 
   // Collect shipment items
   const shipmentItems = [];
-  document.querySelectorAll('.item-row').forEach(row => {
-    const productId = row.querySelector('.shipment-item-product').value;
-    const quantity = row.querySelector('.shipment-item-quantity').value;
-    const unitCost = row.querySelector('.shipment-item-cost').value;
+  const rows = document.querySelectorAll('#shipment-items-container .item-row');
+  
+  for (const row of rows) {
+    const productSelect = row.querySelector('.shipment-item-product');
+    const quantityInput = row.querySelector('.shipment-item-quantity');
+    const costInput = row.querySelector('.shipment-item-cost');
+
+    if (!productSelect || !quantityInput || !costInput) {
+      continue;
+    }
+
+    const productId = productSelect.value;
+    const quantity = quantityInput.value;
+    const unitCost = costInput.value;
 
     if (productId && quantity && unitCost) {
       shipmentItems.push({
@@ -1496,7 +1564,7 @@ async function createShipment() {
         unit_cost: parseFloat(unitCost)
       });
     }
-  });
+  }
 
   if (shipmentItems.length === 0) {
     showNotification('Please add at least one shipment item', 'error');
@@ -1624,7 +1692,7 @@ async function updateShipment() {
 
   // Collect shipment items
   const shipmentItems = [];
-  document.querySelectorAll('.item-row').forEach(row => {
+	document.querySelectorAll('#shipment-items-container .item-row').forEach(row => {
     const productId = row.querySelector('.shipment-item-product').value;
     const quantity = row.querySelector('.shipment-item-quantity').value;
     const unitCost = row.querySelector('.shipment-item-cost').value;

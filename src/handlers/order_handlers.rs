@@ -123,28 +123,31 @@ pub async fn get_order_details(
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppError> {
     let order_id = path.into_inner();
+    
+    // Get order with items
     let (order, items) = OrderService::find_with_details(&data.db, order_id).await?;
     
+    // Get customer separately (just needed fields)
     let customer = Customers::find_by_id(order.customer_id)
         .one(&data.db)
         .await?
-        .unwrap_or_default();
+        .ok_or_else(|| AppError::NotFound)?;
     
-    let mut items_with_additional_information = Vec::new();
+    // Build item responses WITHOUT full product objects
+    let mut item_responses = Vec::new();
     for item in items {
         let product = Products::find_by_id(item.product_id)
             .one(&data.db)
             .await?
-            .unwrap_or_default();
+            .ok_or_else(|| AppError::NotFound)?;
         
-        let item_response = OrderItemResponse {
-            order_id: item.order_id,
+        item_responses.push(OrderItemResponse {
             product_id: item.product_id,
-            quantity: item.quantity,
-            unit_price: item.unit_price,
+            order_id: order.order_id,
             product_name: Some(product.name),
-        };
-        items_with_additional_information.push(item_response);
+            quantity: item.quantity,
+            unit_price: item.unit_price,   // Price at order time
+        });
     }
     
     let response = OrderDetailsResponse {
@@ -154,8 +157,8 @@ pub async fn get_order_details(
         status: order.status,
         total_amount: order.total_amount,
         shipping_address: order.shipping_address,
-        customer_name: Some(format!("{} {}", customer.first_name, customer.last_name)),
-        items: items_with_additional_information,
+        customer_name: format!("{} {}", customer.first_name, customer.last_name).into(),
+        items: item_responses,
     };
     
     Ok(HttpResponse::Ok().json(response))
